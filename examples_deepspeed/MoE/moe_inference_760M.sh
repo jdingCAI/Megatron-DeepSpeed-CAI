@@ -268,13 +268,13 @@ do
                 0.01359 ${ARX} 0.01588 ${GIT}"
             else
                 # VOCAB_PATH=/data/the_pile_public_merged_nopreprocessing/gpt2-vocab.json
-                VOCAB_PATH=/workspace/megatron/dataset/gpt2-vocab.json
+                VOCAB_PATH=/workspace/Megatron-DeepSpeed-CAI/dataset/gpt2-vocab.json
                 # MERGE_PATH=/data/the_pile_public_merged_nopreprocessing/gpt2-merges.txt
-                MERGE_PATH=/workspace/megatron/dataset/gpt2-merges.txt
+                MERGE_PATH=/workspace/Megatron-DeepSpeed-CAI/dataset/gpt2-merges.txt
                 # Public the Pile dataset, can be downloaded at https://mystic.the-eye.eu/public/AI/pile_neox/
                 # For cluster Azure-EastUS-V100-32GB-4, Lab-RR1-V100
                 # DATA_PATH=/vc_data_blob/users/conglli/the_pile_public_merged_nopreprocessing/pile_text_document
-                DATA_PATH=/workspace/megatron/dataset/my-gpt2_text_document
+                DATA_PATH=/workspace/Megatron-DeepSpeed-CAI/dataset/my-gpt2_text_document
                 # For cluster Azure-WestUS3-A100
                 # DATA_PATH=/blob/data/the_pile_public_merged_nopreprocessing/pile_text_document
             fi
