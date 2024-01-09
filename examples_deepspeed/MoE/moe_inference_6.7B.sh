@@ -10,7 +10,7 @@ NUM_GPUS_ITER=(2)
 
 ## Micro batch size per GPU
 ## Make sure that BATCH_SIZE <= GLOBAL_BATCH_SIZE*PP_SIZE*MP_SIZE/NUM_GPUS
-BATCH_SIZES=(4 8 16)
+BATCH_SIZES=(16)
 
 ### MoE configs
 ## Number of experts. EP_SIZE 1 means dense model without MoE
@@ -399,7 +399,7 @@ do
                 ds_ssh "echo $ITERATION_2 > $ITERATION_FILE_2"
             fi
 
-            run_cmd="deepspeed ${DIR}/../../pretrain_gpt.py ${megatron_options} ${data_options} ${deepspeed_options} &> ${OUTPUT_BASEPATH}/log/${NAME}_${host}_${current_time}.log"
+            run_cmd="deepspeed --num_gpus $NUM_GPUS ${DIR}/../../pretrain_gpt.py ${megatron_options} ${data_options} ${deepspeed_options} &> ${OUTPUT_BASEPATH}/log/${NAME}_${host}_${current_time}.log"
             echo ${run_cmd}
             eval ${run_cmd}
             set +x

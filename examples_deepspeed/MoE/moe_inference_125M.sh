@@ -332,6 +332,7 @@ do
                     --log-validation-ppl-to-tensorboard \
                     --log-memory-to-tensorboard \
                     --profile-name ${NAME} \
+                    --profile-execution \
                     --tensorboard-dir ${TENSORBOARD_DIR}"
 
             if [ "${ACTIVATION_CHECKPOINT}" = "true" ]; then
@@ -399,7 +400,7 @@ do
                 ds_ssh "echo $ITERATION_2 > $ITERATION_FILE_2"
             fi
 
-            run_cmd="deepspeed ${DIR}/../../pretrain_gpt.py ${megatron_options} ${data_options} ${deepspeed_options} &> ${OUTPUT_BASEPATH}/log/${NAME}_${host}_${current_time}.log"
+            run_cmd="deepspeed --num_gpus $NUM_GPUS ${DIR}/../../pretrain_gpt.py ${megatron_options} ${data_options} ${deepspeed_options} &> ${OUTPUT_BASEPATH}/log/${NAME}_${host}_${current_time}.log"
             echo ${run_cmd}
             eval ${run_cmd}
             set +x

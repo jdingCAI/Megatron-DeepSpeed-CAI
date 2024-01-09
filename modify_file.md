@@ -1,5 +1,5 @@
 # Adding memory profiling
-change ./megatron/training.py by adding the following in ```def train()``` and ```def evaluate()```.
+change ./megatron/training.py by adding the following in ```def train()``` and ```def evaluate()``` for pytorch profiler.
 ```
 ...
 from contextlib import ExitStack
@@ -62,6 +62,7 @@ def evaluate(forward_step_func,
             ...
             prof.step()
 ```
+Add ```report_memory(string)``` when needed
 # Fixing Issues from the original repo
 change ./megatron/core/pipeline_parallel/schedules.py for the following by adding ```and not args.inference```
 ```
@@ -73,7 +74,7 @@ def forward_backward_no_pipelining():
     if args.deepspeed and not args.inference:
         model.set_gradient_accumulation_boundary(True)
 ```
-# Add profile names
+# Add profile names and profile execution
 ./megatron/arguments.py
 ```
     group.add_argument('--profile-execution', type=bool, default=False,

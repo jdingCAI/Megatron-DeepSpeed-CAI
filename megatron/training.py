@@ -1164,20 +1164,21 @@ def train(forward_step_func, model, optimizer, opt_param_scheduler,
     now = datetime.now()
     timestamp = now.strftime("%Y%m%d_%H%M")
     with ExitStack() as stack:
-        prof = stack.enter_context(
-            torch.profiler.profile(
-                schedule=torch.profiler.schedule(wait=1, warmup=1, active=2, repeat=1),
-                on_trace_ready=torch.profiler.tensorboard_trace_handler(
-                    "./output/tensorboard/training"
-                    + '_'+args.profile_name
-                    +'_'+timestamp
-                ),
-                record_shapes=True,
-                profile_memory=True,
-                with_stack=True,
-                with_flops=True,
+        if args.profile_execution:
+            prof = stack.enter_context(
+                torch.profiler.profile(
+                    schedule=torch.profiler.schedule(wait=1, warmup=1, active=2, repeat=1),
+                    on_trace_ready=torch.profiler.tensorboard_trace_handler(
+                        "./output/tensorboard/training"
+                        + '_'+args.profile_name
+                        +'_'+timestamp
+                    ),
+                    record_shapes=True,
+                    profile_memory=True,
+                    with_stack=True,
+                    with_flops=True,
+                )
             )
-        )
     
     while iteration < args.train_iters and (args.train_tokens is None or \
         args.consumed_train_tokens < args.train_tokens):
@@ -1301,7 +1302,8 @@ def train(forward_step_func, model, optimizer, opt_param_scheduler,
             torch.distributed.barrier()
             print_datetime('exiting program at iteration {}'.format(iteration))
             sys.exit()
-        prof.step()
+        if args.profile_execution:
+            prof.step()
 
     return iteration
 
@@ -1339,20 +1341,21 @@ def evaluate(forward_step_func,
     now = datetime.now()
     timestamp = now.strftime("%Y%m%d_%H%M")
     with ExitStack() as stack:
-        prof = stack.enter_context(
-            torch.profiler.profile(
-                schedule=torch.profiler.schedule(wait=2, warmup=1, active=2, repeat=1),
-                on_trace_ready=torch.profiler.tensorboard_trace_handler(
-                    "./output/tensorboard/inference"
-                    + '_'+args.profile_name
-                    +'_'+timestamp
-                ),
-                record_shapes=True,
-                profile_memory=True,
-                with_stack=True,
-                with_flops=True,
+        if args.profile_execution:
+            prof = stack.enter_context(
+                torch.profiler.profile(
+                    schedule=torch.profiler.schedule(wait=2, warmup=1, active=2, repeat=1),
+                    on_trace_ready=torch.profiler.tensorboard_trace_handler(
+                        "./output/tensorboard/inference"
+                        + '_'+args.profile_name
+                        +'_'+timestamp
+                    ),
+                    record_shapes=True,
+                    profile_memory=True,
+                    with_stack=True,
+                    with_flops=True,
+                )
             )
-        )
     report_memory("before evaluate")
     with torch.no_grad():
         iteration = 0
@@ -1398,7 +1401,8 @@ def evaluate(forward_step_func,
             args.consumed_valid_samples += mpu.get_data_parallel_world_size() \
                                            * args.micro_batch_size \
                                            * get_num_microbatches()
-            prof.step()
+            if args.profile_execution:
+                prof.step()
         
         collected_non_loss_data = None
         if process_non_loss_data_func is not None and is_last_rank():
