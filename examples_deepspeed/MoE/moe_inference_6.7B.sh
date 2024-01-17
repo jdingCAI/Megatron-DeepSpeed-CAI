@@ -4,17 +4,17 @@ DIR=`pwd`
 ### Iterations
 # NUM_GPUS=$(($(ds_ssh nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)-2))
 # NUM_GPUS_PERNODE=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
-NUM_GPUS_ITER=(2)
+NUM_GPUS_ITER=(1 2)
 # echo "NUM_GPUS: $NUM_GPUS,NUM_GPUS_PERNODE: $NUM_GPUS_PERNODE"
 
 
 ## Micro batch size per GPU
 ## Make sure that BATCH_SIZE <= GLOBAL_BATCH_SIZE*PP_SIZE*MP_SIZE/NUM_GPUS
-BATCH_SIZES=(16)
+BATCH_SIZES=(4 8 16)
 
 ### MoE configs
 ## Number of experts. EP_SIZE 1 means dense model without MoE
-EP_SIZES=(2 4 8 16)
+EP_SIZES=(1 2 4 8)
 # EP_SIZE=12
 
 
@@ -223,7 +223,8 @@ do
             mkdir -p "${OUTPUT_BASEPATH}/tensorboard/"
             mkdir -p "${OUTPUT_BASEPATH}/checkpoint/"
             mkdir -p "${OUTPUT_BASEPATH}/log/"
-            TENSORBOARD_DIR="${OUTPUT_BASEPATH}/tensorboard/${NAME}_${host}_${current_time}"
+            mkdir -p "${DIR}/nsys-out/"
+            TENSORBOARD_DIR="${OUTPUT_BASEPATH}/tensorboard/${NAME}-${current_time}"
             mkdir -p ${TENSORBOARD_DIR} 
             ## Note that for MoE model with billion-scale base model, the checkpoint can be
             ## as large as TB-scale which normal NFS cannot handle efficiently.
@@ -398,8 +399,8 @@ do
                 ds_ssh "echo $ITERATION > $ITERATION_FILE"
                 ds_ssh "echo $ITERATION_2 > $ITERATION_FILE_2"
             fi
-
-            run_cmd="deepspeed --num_gpus $NUM_GPUS ${DIR}/../../pretrain_gpt.py ${megatron_options} ${data_options} ${deepspeed_options} &> ${OUTPUT_BASEPATH}/log/${NAME}_${host}_${current_time}.log"
+            export PROFILER="nsys profile -o "./nsys-out/${NAME}-${current_time}" -f true --capture-range=cudaProfilerApi --gpu-metrics-device=all"
+            run_cmd="$PROFILER deepspeed --num_gpus $NUM_GPUS ${DIR}/../../pretrain_gpt.py ${megatron_options} ${data_options} ${deepspeed_options} &> ${OUTPUT_BASEPATH}/log/${NAME}_${host}_${current_time}.log"
             echo ${run_cmd}
             eval ${run_cmd}
             set +x

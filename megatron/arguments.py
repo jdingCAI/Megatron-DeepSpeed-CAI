@@ -721,7 +721,7 @@ def _add_logging_args(parser):
     group.add_argument('--log-world-size-to-tensorboard',
                        action='store_true',
                        help='Enable world size logging to tensorboard.')
-    group.add_argument('--profile-execution', type=bool, default=False,
+    group.add_argument('--profile-execution', action='store_true', default=False,
                        help='Use pytorch profiler during execution ')
     group.add_argument('--profile-name', default=False,  help=' Profile folder name ')
     return parser

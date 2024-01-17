@@ -1359,8 +1359,14 @@ def evaluate(forward_step_func,
     report_memory("before evaluate")
     with torch.no_grad():
         iteration = 0
+        warm_up = 3
+        record_iter = 5
         while iteration < args.eval_iters:
             iteration += 1
+            if iteration == warm_up+1:
+                torch.cuda.cudart().cudaProfilerStart()
+            if iteration >=warm_up+1 and iteration <=warm_up+record_iter:
+                torch.cuda.nvtx.range_push("iteration{}".format(iteration))
             if verbose and iteration % args.log_interval == 0:
                 print_rank_0('Evaluating iter {}/{}'.format(iteration,
                                                             args.eval_iters))
@@ -1403,6 +1409,10 @@ def evaluate(forward_step_func,
                                            * get_num_microbatches()
             if args.profile_execution:
                 prof.step()
+            if iteration >=warm_up+1 and iteration <=warm_up+record_iter:
+                torch.cuda.nvtx.range_pop()
+            if iteration == warm_up+record_iter:
+                torch.cuda.cudart().cudaProfilerStop()
         
         collected_non_loss_data = None
         if process_non_loss_data_func is not None and is_last_rank():

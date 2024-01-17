@@ -2,6 +2,8 @@ import glob
 import re
 import pandas as pd
 
+# Extract the memory usage results from log file
+
 # Pattern to match the log files
 file_pattern = './output/log/gpt-*-bs-*-gpus-*-mp-*-ep-*-epp-*.log'
 
