@@ -13,8 +13,8 @@ for file in "$directory"/gpt-6.7B-*.nsys-rep; do
         ep=${BASH_REMATCH[4]}
 
         # Construct the output file name
-        output_file="results-${file#./}"
-        output_file="${output_file%.nsys-rep}.txt"
+        output_file="results-${file#./nsys-out/}"
+        output_file="./nsys-out/${output_file%.nsys-rep}.txt"
 
         # Run your command
         nsys stats -r nvtx_sum,cuda_gpu_kern_sum --force-export true "$file" > "$output_file"
